@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { StudyStatus, BreakType, AnalysisResult, ChildProfile, StudySession, Rank, UserStatus } from '../types';
 import Camera, { CameraHandle } from '../components/common/Camera';
-import { ClockIcon, SparklesIcon, InformationCircleIcon, PlayIcon, StopIcon, ResumeIcon, TrophyIcon } from '../components/common/Icons';
+import { ClockIcon, SparklesIcon, InformationCircleIcon, PlayIcon, StopIcon, ResumeIcon } from '../components/common/Icons';
 import api from '../services/api';
 import { useSpeech } from '../hooks/useSpeech';
 import Spinner from '../components/common/Spinner';
@@ -16,13 +16,6 @@ const formatTime = (seconds: number) => {
   const mins = Math.floor(seconds / 60);
   const secs = Math.floor(seconds % 60);
   return `${String(mins).padStart(2, '0')}:${String(secs).padStart(2, '0')}`;
-};
-
-const getRankInfo = (rank: Rank): {name: string, icon: JSX.Element} => {
-    switch (rank) {
-        case Rank.WUKONG: return { name: '齐天大圣', icon: <TrophyIcon /> };
-        default: return { name: '齐天大圣', icon: <TrophyIcon /> };
-    }
 };
 
 const StatusIndicator: React.FC<{ status: StudyStatus }> = ({ status }) => {
@@ -677,7 +670,6 @@ const SupervisionView: React.FC<SupervisionViewProps> = ({ profile, onRankChange
     console.log('Is camera ready:', isCameraReady);
     console.log('Privacy consent:', privacyConsentGiven);
     console.log('Camera consent:', cameraConsentGiven);
-    const rankInfo = getRankInfo(currentRank);
 
     return (
         <div className="flex flex-col gap-6">
@@ -756,6 +748,15 @@ const SupervisionView: React.FC<SupervisionViewProps> = ({ profile, onRankChange
                                     message={animation.message}
                                 />
 
+                            </div>
+                            {/* 添加设备摆放提示 */}
+                            <div className="mt-2 p-3 bg-amber-50 dark:bg-amber-900/30 border border-amber-200 dark:border-amber-700 rounded-lg">
+                                <div className="flex items-start gap-2">
+                                    <span className="text-amber-600 dark:text-amber-400 mt-0.5">💡</span>
+                                    <p className="text-amber-800 dark:text-amber-200 text-sm">
+                                        摆放小提示：请将设备放置在孩子前方约45度角，确保摄像头能拍到完整的上半身坐姿哦！
+                                    </p>
+                                </div>
                             </div>
                         </div>
                     </div>
