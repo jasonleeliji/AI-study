@@ -2,7 +2,7 @@
 # STAGE 1: Build the backend application
 # 在这个阶段，我们安装所有依赖（包括 dev），并进行编译
 # =================================================================
-FROM registry.cn-hangzhou.aliyuncs.com/library/node:18-alpine AS builder
+FROM anolis-registry.cn-zhangjiakou.cr.aliyuncs.com/openanolis/node:18.17.1-23-minimal as builder
 # 设置工作目录 
 WORKDIR /app
 
@@ -22,7 +22,7 @@ RUN npm run build
 # STAGE 2: Create the final, lean production image
 # 在这个阶段，我们只拿走运行时需要的东西
 # =================================================================
-FROM  registry.cn-hangzhou.aliyuncs.com/library/node:18-alpine
+FROM  anolis-registry.cn-zhangjiakou.cr.aliyuncs.com/openanolis/node:18.17.1-23-minimal
 
 # 设置工作目录
 WORKDIR /app
