@@ -1,0 +1,322 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* 添加自定义动画 */
+@keyframes shake {
+  0%, 100% { transform: translateX(0); }
+  25% { transform: translateX(-5px); }
+  75% { transform: translateX(5px); }
+}
+
+@keyframes float {
+  0% { transform: translateY(0); }
+  50% { transform: translateY(-10px); }
+  100% { transform: translateY(0); }
+}
+
+
+
+@keyframes fade-in {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes fade-in-out {
+  0% { opacity: 0; }
+  20% { opacity: 1; }
+  80% { opacity: 1; }
+  100% { opacity: 0; }
+}
+
+@keyframes peek {
+  0%, 100% { transform: translateY(100%); }
+  50% { transform: translateY(0); }
+}
+
+.animate-shake {
+  animation: shake 0.5s ease-in-out;
+}
+
+.animate-float {
+  animation: float 3s ease-in-out infinite;
+}
+
+.animate-crack-appear {
+  animation: crack-appear 3s ease-in-out;
+}
+
+.animate-golden-burst {
+  animation: golden-burst 3s ease-in-out;
+}
+
+.animate-gentle-float {
+  animation: gentle-float 4s ease-in-out infinite;
+}
+
+.animate-spin-slow {
+  animation: spin-slow 8s linear infinite;
+}
+
+.animate-type-in {
+  animation: type-in 0.5s ease-out;
+}
+
+.animate-cta-appear {
+  animation: cta-appear 0.8s ease-out;
+}
+
+.animate-pulse-strong {
+  animation: pulse-strong 1.5s ease-in-out infinite;
+}
+
+.animate-modal-appear {
+  animation: modal-appear 0.5s ease-out;
+}
+
+.animate-fade-in {
+  animation: fade-in 1s ease-in-out;
+}
+
+.animate-fade-in-out {
+  animation: fade-in-out 5s ease-in-out infinite;
+}
+
+.animate-peek {
+  animation: peek 6s ease-in-out infinite;
+}
+
+/* 主题相关样式 */
+.theme-stone-monkey {
+  background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+  border-color: transparent;
+}
+
+.theme-cave-master {
+  background: linear-gradient(135deg, #1a2980 0%, #26d0ce 100%);
+  border-color: #5F9EA0;
+}
+
+.theme-monkey-king {
+  background: linear-gradient(135deg, #FFD700 0%, #FFA500 100%);
+  border-color: #FF8C00;
+}
+
+.theme-total-monkey-king {
+  background: linear-gradient(135deg, #4B0082 0%, #8A2BE2 100%);
+  border-color: #9932CC;
+}
+
+/* 滚动条样式 */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: #1e293b;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #475569;
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #64748b;
+}
+
+/* 确保内容不会被footer遮挡 */
+#root {
+  padding-bottom: 80px;
+}
+
+/* 添加一些全局过渡效果 */
+* {
+  transition: background-color 0.3s, border-color 0.3s, color 0.3s;
+}
+
+/* Add any custom base styles here */
+body {
+    font-family: 'Inter', sans-serif;
+}
+
+.auth-bg {
+    /* 移除背景图片 */
+}
+
+
+@keyframes bgPan {
+    0%, 100% {
+        background-position: 0% 50%;
+    }
+    50% {
+        background-position: 100% 50%;
+    }
+}
+
+@keyframes water-flow {
+    0%, 100% {
+        background-position: 0% 50%;
+    }
+    50% {
+        background-position: 100% 50%;
+    }
+}
+
+@keyframes water-ripple {
+    0% {
+        transform: translate(0, 0);
+    }
+    50% {
+        transform: translate(5%, 5%);
+    }
+    100% {
+        transform: translate(0, 0);
+    }
+}
+
+@keyframes golden-shine {
+    0% {
+        background-position: 0% 50%;
+    }
+    50% {
+        background-position: 100% 50%;
+    }
+    100% {
+        background-position: 0% 50%;
+    }
+}
+
+/* Spiritual Energy (祥云) */
+.spiritual-cloud {
+    position: absolute;
+    background: radial-gradient(ellipse at center, rgba(255, 255, 255, 0.9) 0%, rgba(173, 216, 230, 0.6) 70%, rgba(135, 206, 250, 0.3) 100%);
+    border-radius: 50%;
+    filter: blur(20px);
+    animation: float linear infinite;
+    z-index: 10;
+
+    /* 调整祥云大小和位置，更适合横屏显示 */
+    width: 100px; /* 更大的宽度 */
+    height: 60px; /* 相对较小的高度 */
+}
+
+/* 添加深色模式下的祥云样式 */
+.dark .spiritual-cloud {
+    background: radial-gradient(ellipse at center, rgba(30, 41, 59, 0.9) 0%, rgba(15, 23, 42, 0.6) 70%, rgba(2, 6, 23, 0.3) 100%);
+}
+
+/* Stone Monkey Theme - Initial stage */
+.theme-stone-monkey {
+    position: relative;
+    border: 1px solid #cbd5e1; /* slate-300 */
+    border-radius: 0.75rem;
+    padding: 0.25rem;
+    background-color: #f1f5f9; /* slate-100 */
+    overflow: hidden;
+    /* 确保文字在浅色背景上有足够的对比度 */
+    color: #0f172a; /* slate-900 */
+}
+
+.dark .theme-stone-monkey {
+    background-color: #1e293b; /* slate-800 */
+    border-color: #334155; /* slate-700 */
+    /* 确保文字在深色背景上有足够的对比度 */
+    color: #f1f5f9; /* slate-100 */
+}
+
+/* Cave Master Theme - Second stage */
+.theme-cave-master {
+    position: relative;
+    border: 1px solid #38bdf8; /* sky-400 */
+    border-radius: 1rem;
+    padding: 0.25rem;
+    overflow: hidden;
+    box-shadow: 0 0 15px rgba(56, 189, 248, 0.3);
+    /* 确保文字在渐变背景上有足够的对比度 */
+    color: #0f172a; /* slate-900 */
+}
+
+.dark .theme-cave-master {
+    border-color: #0ea5e9; /* sky-500 */
+    box-shadow: 0 0 15px rgba(14, 165, 233, 0.3);
+    color: #f1f5f9; /* slate-100 */
+}
+
+/* Monkey King Theme - Third stage */
+.theme-monkey-king {
+    position: relative;
+    border: 1px solid #fbbf24; /* amber-400 */
+    border-radius: 1rem;
+    padding: 0.25rem;
+    overflow: hidden;
+    box-shadow: 0 0 20px rgba(251, 191, 36, 0.4);
+    /* 确保文字在渐变背景上有足够的对比度 */
+    color: #0f172a; /* slate-900 */
+}
+
+.dark .theme-monkey-king {
+    border-color: #f59e0b; /* amber-500 */
+    box-shadow: 0 0 20px rgba(245, 158, 11, 0.4);
+    color: #f1f5f9; /* slate-100 */
+}
+
+/* Total Monkey King Theme - Final stage */
+.theme-total-monkey-king {
+    position: relative;
+    border: 1px solid #a78bfa; /* violet-400 */
+    border-radius: 1rem;
+    padding: 0.25rem;
+    overflow: hidden;
+    box-shadow: 0 0 25px rgba(167, 139, 250, 0.5);
+    /* 确保文字在渐变背景上有足够的对比度 */
+    color: #0f172a; /* slate-900 */
+}
+
+.dark .theme-total-monkey-king {
+    border-color: #8b5cf6; /* violet-500 */
+    box-shadow: 0 0 25px rgba(139, 92, 246, 0.5);
+    color: #f1f5f9; /* slate-100 */
+}
+
+/* Animation for character appearance */
+@keyframes fade-in {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes peek {
+    0%, 100% {
+        transform: translateY(100%);
+    }
+    50% {
+        transform: translateY(0);
+    }
+}
+
+.animate-fade-in {
+    animation: fade-in 0.6s ease-out;
+}
+
+.animate-peek {
+    animation: peek 4s ease-in-out infinite;
+}
+
+/* 确保应用适合横屏显示 */
+@media screen and (max-width: 1024px) and (orientation: portrait) {
+    body {
+        transform-origin: top left;
+        transform: rotate(-90deg) translateX(-100vw);
+        width: 100vh;
+        height: 100vw;
+        overflow: hidden;
+        position: fixed;
+    }
+}

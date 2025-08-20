@@ -1,0 +1,89 @@
+# Logs
+logs
+*.log
+
+# Environment files
+.env
+.env.local
+.env.production
+
+# Dependencies
+node_modules/
+*/node_modules/
+
+# Build outputs
+dist/
+*/dist/
+build/
+*/build/
+out/
+*/out/
+
+# Database files
+*.db
+*.db.*
+!*.db.keep
+
+# Uploads directory
+uploads/
+*/uploads/
+
+# IDE and editor files
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.DS_Store
+Thumbs.db
+
+# Temporary files
+tmp/
+temp/
+
+# OS generated files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# Testing
+coverage/
+*/coverage/
+test-results/
+*/test-results/
+
+# Package lock files
+package-lock.json
+*/package-lock.json
+yarn.lock
+*/yarn.lock
+
+# Docker
+.dockerignore
+*/.dockerignore
+
+# SQLite
+*.sqlite
+*.sqlite3
+*.db-shm
+*.db-wal
+
+# Backend specific
+backend/database/
+backend/.env
+backend/uploads/
+
+# Frontend specific
+frontend/.env
+frontend/.env.production
+frontend/dist/
+
+# Node version
+.nvmrc
+
+# Typescript
+*.tsbuildinfo
