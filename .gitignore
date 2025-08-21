@@ -57,8 +57,7 @@ test-results/
 */test-results/
 
 # Package lock files
-package-lock.json
-*/package-lock.json
+
 yarn.lock
 */yarn.lock
 

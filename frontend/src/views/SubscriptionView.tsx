@@ -317,7 +317,7 @@ const SubscriptionView: React.FC = () => {
                         <h3 className="text-xl font-bold text-white mb-4">支付开通中...</h3>
                         <div className="text-slate-300 mb-6 leading-relaxed">
                             <p className="mb-4">
-                                非常抱歉，线上支付正在开通中....如果您实在是要被家中的"灵猴"烦死了，又真的真的不差我们这三瓜俩枣，愿意"打赏"我们，请扫码入微信群申请开通。
+                                非常抱歉，线上支付正在开通中....如果您实在是要被家中的"灵猴"烦死了，可扫码入微信群申请延长试用时间。
                             </p>
                             <div className="flex justify-center mb-4">
                                 <img 
@@ -327,7 +327,7 @@ const SubscriptionView: React.FC = () => {
                             />
                             </div>
                             <p className="text-center text-sm text-slate-400 mb-6">
-                                扫码加入微信群，联系管理员开通服务
+                                扫码加入微信群，联系管理员申请延长试用时间。
                             </p>
                             
                             {/* 添加隐私协议和服务协议 */}
