@@ -1,54 +1,52 @@
 # =================================================================
 # STAGE 1: Build the backend application
-# 在这个阶段，我们安装所有依赖（包括 dev），并进行编译
 # =================================================================
 FROM anolis-registry.cn-zhangjiakou.cr.aliyuncs.com/openanolis/node:18.17.1-23-minimal as builder
-# 设置工作目录 
+
 WORKDIR /app
 
-# 复制 package 文件
+# 复制 package 文件。此时默认是 root 用户，文件所有者是 root
 COPY package*.json ./
 
-# 【第1处修改】在安装依赖前，确保 package 文件属于 node 用户
-RUN chown -R node:node .
-
 # 安装所有依赖，用于构建
+# npm install 会在 node_modules 里创建大量文件，这些文件默认也属于 root
 RUN npm install
 
 # 复制所有源代码
 COPY . .
 
-# 【第2处修改】在编译前，确保所有源代码也属于 node 用户
+# 【关键修复】现在，以 root 身份，把整个 /app 目录的所有权都交给 node 用户
+USER root
 RUN chown -R node:node .
 
-# 运行构建命令
+# 【关键修复】切换回安全的 node 用户，来执行后续的构建操作
+USER node
+
+# 运行构建命令。现在 node 用户对自己拥有的文件进行操作，权限没问题。
 RUN npm run build
 
 # =================================================================
 # STAGE 2: Create the final, lean production image
-# 在这个阶段，我们只拿走运行时需要的东西
 # =================================================================
-FROM  anolis-registry.cn-zhangjiakou.cr.aliyuncs.com/openanolis/node:18.17.1-23-minimal
+FROM anolis-registry.cn-zhangjiakou.cr.aliyuncs.com/openanolis/node:18.17.1-23-minimal
 
-# 设置工作目录
 WORKDIR /app
 
-# 从 builder 阶段，只复制编译后的 dist 目录
-# 这一步复制过来的文件，其所有者默认会是 root
+# 以 root 身份，从 builder 阶段复制文件
+USER root
 COPY --from=builder /app/dist ./dist
+COPY --from=builder /app/package.json ./package.json
+COPY --from=builder /app/package-lock.json ./package-lock.json
 
-# 重新生成一个干净的、只包含生产依赖的 node_modules
-# (或者从 builder 复制，但这样做更纯净)
-COPY package*.json ./
-
-# 【第3处修改】在安装生产依赖前，确保 package 文件属于 node 用户
-# 这是解决 npm ci 失败的关键
+# 【关键修复】在安装生产依赖前，把所有文件所有权交给 node 用户
 RUN chown -R node:node .
 
+# 【关键修复】切换回安全的 node 用户，来安装依赖和启动服务
+USER node
+
+# npm ci 现在以 node 用户身份，在自己拥有的目录里操作，权限没问题
 RUN npm ci --only=production
 
-# 暴露你的后端服务端口
 EXPOSE 5000
 
-# 定义容器启动时运行的命令
 CMD ["node", "dist/server.js"]
