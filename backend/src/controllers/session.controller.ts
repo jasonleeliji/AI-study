@@ -6,6 +6,7 @@ import { AuthenticatedRequest } from '../types';
 import { sendSessionUpdateToUser } from '../services/realtime.service';
 import { calculateMetrics } from '../services/report.service';
 import { DailyTimeLimitService } from '../services/dailyTimeLimit.service';
+import { onStudySessionStart, onStudySessionEnd, onUserBreak, onUserResumeFromBreak } from '../services/forcedBreak.service';
 import config from '../config';
 import { broadcastConfigUpdate } from '../services/realtime.service';
 import { Op } from 'sequelize';
@@ -69,6 +70,9 @@ export const startSession = async (req: Request, res: Response, next: NextFuncti
         });
 
         sendSessionUpdateToUser(userId, newSession);
+        
+        // 通知强制休息服务用户开始学习
+        onStudySessionStart(userId.toString());
         
         // 返回会话信息和剩余时间
         const response = {
@@ -165,6 +169,10 @@ export const stopSession = async (req: Request, res: Response, next: NextFunctio
         }
 
         sendSessionUpdateToUser(userId, session);
+        
+        // 通知强制休息服务用户结束学习
+        onStudySessionEnd(userId.toString());
+        
         (res as any).json(session);
     } catch (err) {
         next(err);
@@ -200,6 +208,9 @@ export const startBreak = async (req: Request, res: Response, next: NextFunction
         
         await session.save();
 
+        // 通知强制休息服务用户开始休息
+        onUserBreak(userId.toString());
+
         sendSessionUpdateToUser(userId, session);
         (res as any).json(session);
     } catch (error) {
@@ -226,7 +237,19 @@ export const resumeFromBreak = async (req: Request, res: Response, next: NextFun
         session.status = StudyStatus.Studying;
         session.activeBreakType = undefined;
         session.lastActivity = new Date();
+        
+        // 结束当前休息记录
+        const breakHistory = session.breakHistory || [];
+        const currentBreak = breakHistory.find(b => !b.endTime);
+        if (currentBreak) {
+            currentBreak.endTime = new Date();
+            session.breakHistory = breakHistory;
+        }
+        
         await session.save();
+
+        // 通知强制休息服务用户恢复学习
+        onUserResumeFromBreak(userId.toString());
 
         sendSessionUpdateToUser(userId, session);
         (res as any).json(session);

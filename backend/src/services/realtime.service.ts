@@ -8,6 +8,7 @@ import { StudySession } from '../models/studySession.model';
 import { StudyStatus } from '../types/studySession';
 import { TokenUsage } from '../services/qwen.service';
 import { DailyTimeLimitService } from './dailyTimeLimit.service';
+import { checkAndHandleForcedBreak } from './forcedBreak.service';
 import { Op } from 'sequelize';
 
 const userSockets = new Map<string, WebSocket[]>();
@@ -91,6 +92,21 @@ export const sendRemainingTimeUpdateToUser = (userId: string, remainingSeconds: 
     }
 };
 
+export const sendForcedBreakNotificationToUser = (userId: string, breakData: any): void => {
+    const sockets = userSockets.get(userId);
+    if (sockets) {
+        const payload = JSON.stringify({
+            type: 'forced_break_notification',
+            breakData
+        });
+        sockets.forEach(ws => {
+            if (ws.readyState === WebSocket.OPEN) {
+                ws.send(payload);
+            }
+        });
+    }
+};
+
 export const sendProfileUpdateToUser = (userId: string, profile: any): void => {
     const sockets = userSockets.get(userId);
     if (sockets) {
@@ -164,6 +180,9 @@ export const updateRemainingTimeForActiveUsers = async (): Promise<void> => {
                 console.log(`Session ${session.id} ended due to time limit for user ${userId}`);
             }
         }
+        
+        // 检查强制休息
+        await checkAndHandleForcedBreak();
     } catch (error) {
         console.error('Error updating remaining time for active users:', error);
     }

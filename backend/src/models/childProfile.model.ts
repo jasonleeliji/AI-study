@@ -5,7 +5,7 @@ export class ChildProfile extends Model {
   public userId!: number;
   public nickname!: string;
   public age!: number;
-  public grade!: string;
+  public grade!: '幼儿园' | '小学一年级' | '小学二年级' | '小学三年级' | '小学四年级' | '小学五年级' | '小学六年级';
   public gender!: string;
   public minSessionDuration!: number;
   public stretchBreak!: number;

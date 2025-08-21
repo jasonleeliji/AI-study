@@ -12,7 +12,7 @@ export const getChildProfile = async (req: Request, res: Response, next: NextFun
         userId: authReq.user!.id,
         nickname: '默认昵称',
         age: 6,
-        grade: '一年级',
+        grade: '小学一年级',
         gender: 'boy',
         minSessionDuration: 25,
         stretchBreak: 5,

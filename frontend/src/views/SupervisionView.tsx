@@ -9,6 +9,7 @@ import AnimationOverlay from '../components/common/AnimationOverlay';
 import CharacterDisplay from '../components/common/CharacterDisplay';
 import CameraConsentModal from '../components/modals/CameraConsentModal';
 import PrivacyConsentModal from '../components/modals/PrivacyConsentModal';
+import ForcedBreakModal from '../components/modals/ForcedBreakModal';
 import { useAuth } from '../contexts/AuthContext';
 import { isSleepTime, getSleepTimeMessage, getFeedbackTitle, getIdleMessage } from '../utils/timeUtils';
 
@@ -78,6 +79,10 @@ const SupervisionView: React.FC<SupervisionViewProps> = ({ profile, onRankChange
     const [feedbackTitle, setFeedbackTitle] = useState('菩萨有话说'); // 动态反馈标题
     const [sleepMessage, setSleepMessage] = useState('哎呀，姐姐困了，小屁孩也赶紧去睡觉吧，小心长不高哈！再重要的作业咱也不做了，去吧去吧！'); // 动态睡觉提示
     const [idleMessage, setIdleMessage] = useState('徒儿，为师已经准备好了，快来开始修行吧！'); // 动态空闲提示
+    
+    // 强制休息相关状态
+    const [showForcedBreakModal, setShowForcedBreakModal] = useState(false);
+    const [forcedBreakData, setForcedBreakData] = useState<any>(null);
 
     // 处理摄像头错误的回调函数
     const handleCameraError = useCallback((error: string) => {
@@ -378,6 +383,15 @@ const SupervisionView: React.FC<SupervisionViewProps> = ({ profile, onRankChange
                     else if (data.config?.analysisIntervalSeconds) {
                         console.log('WebSocket更新分析间隔:', data.config.analysisIntervalSeconds, '秒');
                         setAnalysisInterval(data.config.analysisIntervalSeconds * 1000);
+                    }
+                    break;
+                case 'forced_break_notification':
+                    console.log('收到强制休息通知:', data);
+                    setForcedBreakData(data);
+                    setShowForcedBreakModal(true);
+                    // 如果有语音消息，进行语音播报
+                    if (data.message) {
+                        speak(data.message);
                     }
                     break;
                 default:
@@ -688,6 +702,17 @@ const SupervisionView: React.FC<SupervisionViewProps> = ({ profile, onRankChange
                     isOpen={showCameraConsentModal}
                     onAgree={() => handleCameraConsent(true)}
                     onDisagree={() => handleCameraConsent(false)}
+                />
+            )}
+
+            {/* 强制休息提醒弹窗 */}
+            {showForcedBreakModal && forcedBreakData && (
+                <ForcedBreakModal 
+                    isOpen={showForcedBreakModal}
+                    onClose={() => setShowForcedBreakModal(false)}
+                    message={forcedBreakData.message}
+                    breakDurationMinutes={forcedBreakData.breakDurationMinutes}
+                    audioUrl={forcedBreakData.audioUrl}
                 />
             )}
 
