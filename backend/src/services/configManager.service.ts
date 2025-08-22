@@ -7,6 +7,7 @@ import {
 } from '../types/character';
 import FeedbackMessage, { IFeedbackMessage } from '../models/feedbackMessage.model';
 import AiPromptConfig, { IAiPromptConfig } from '../models/aiPromptConfig.model';
+import UITextConfig, { IUITextConfig } from '../models/uiTextConfig.model';
 import { AppConfig } from '../models/appConfig.model';
 import { CharacterConfig } from '../models/characterConfig.model';
 import { Op } from 'sequelize';
@@ -276,6 +277,11 @@ export class ConfigManagerService {
         return;
       }
 
+      // 根据环境生成默认图片URL
+      const defaultImageUrl = process.env.NODE_ENV === 'production'
+        ? `${process.env.OSS_HOST || 'https://your-bucket.oss-cn-shanghai.aliyuncs.com'}/assets/wechat-w.png`
+        : `${process.env.BACKEND_URL || 'http://localhost:5000'}/src/assets/wechat-w.png`;
+        
       // 创建默认AppConfig
       await AppConfig.create({
         positiveFeedbackMinutes: 30,
@@ -285,7 +291,7 @@ export class ConfigManagerService {
         caveMasterGoalTokens: 500,
         monkeyKingGoalTokens: 1000,
         totalMonkeyKingGoalTokens: 5000,
-        wechatQrImageUrl: 'https://example.com/wechat-qr.png'
+        wechatQrImageUrl: defaultImageUrl
       });
       
       console.log('Default AppConfig initialized successfully');
@@ -588,6 +594,104 @@ export class ConfigManagerService {
       }
     }
     console.log('AI prompt config initialization check complete.');
+  }
+
+  // ==================== UI文本配置管理 ====================
+  
+  /**
+   * 获取所有UI文本配置
+   */
+  async getAllUITextConfigs(): Promise<UITextConfig[]> {
+    return await UITextConfig.findAll({
+      order: [['subscriptionPlan', 'ASC']]
+    });
+  }
+
+  /**
+   * 根据订阅计划获取UI文本配置
+   */
+  async getUITextConfig(subscriptionPlan: string): Promise<UITextConfig | null> {
+    // 将订阅计划转换为大写以匹配数据库中的格式
+    const normalizedPlan = subscriptionPlan.toUpperCase();
+    return await UITextConfig.findOne({
+      where: { subscriptionPlan: normalizedPlan, isActive: true }
+    });
+  }
+
+  /**
+   * 创建或更新UI文本配置
+   */
+  async upsertUITextConfig(configData: Partial<IUITextConfig>): Promise<UITextConfig> {
+    // 如果configData.id存在，则为更新操作
+    if (configData.id) {
+      console.log(`正在更新UI文本配置: ID=${configData.id}`);
+      const instance = await UITextConfig.findByPk(configData.id);
+      if (instance) {
+        await instance.update(configData);
+        console.log(`更新成功: ${instance.subscriptionPlan}`);
+        return instance;
+      }
+      throw new Error(`未找到ID为 ${configData.id} 的配置`);
+    } 
+    // 否则为创建操作
+    else {
+      console.log(`正在创建新的UI文本配置: ${configData.subscriptionPlan}`);
+      const instance = await UITextConfig.create(configData);
+      console.log(`创建成功: ${instance.subscriptionPlan}`);
+      return instance;
+    }
+  }
+
+  /**
+   * 删除UI文本配置
+   */
+  async deleteUITextConfig(id: number): Promise<boolean> {
+    console.log(`正在删除UI文本配置: ID=${id}`);
+    const result = await UITextConfig.destroy({ where: { id } });
+    const success = result > 0;
+    console.log(`删除${success ? '成功' : '失败'}: ID=${id}`);
+    return success;
+  }
+
+  /**
+   * 初始化默认UI文本配置
+   */
+  async initializeDefaultUITextConfigs(): Promise<void> {
+    console.log('Checking UI text config initialization...');
+    
+    const defaultUITextConfigs = [
+      {
+        subscriptionPlan: 'trial',
+        feedbackTitle: '菩萨救我',
+        sleepMessage: '夜深了，姐姐也要休息了。小猴子，早睡早起身体好，明日再来修行吧！',
+        idleMessage: '小家伙，你再不开始，姐姐就要先睡了....'
+      },
+      {
+        subscriptionPlan: 'standard',
+        feedbackTitle: '师傅救我',
+        sleepMessage: '徒儿，夜深了，为师也要休息了。早睡早起身体好，明日再来修行吧！',
+        idleMessage: '徒儿，为师已经准备好了，快来开始修行吧！'
+      },
+      {
+        subscriptionPlan: 'pro',
+        feedbackTitle: '菩萨救我',
+        sleepMessage: '夜深了，姐姐也要休息了。小猴子，早睡早起身体好，明日再来修行吧！',
+        idleMessage: '小家伙，你再不开始，姐姐就要先睡了....'
+      }
+    ];
+
+    for (const config of defaultUITextConfigs) {
+      // 检查该订阅计划的配置是否已存在
+      const existingConfig = await UITextConfig.findOne({ where: { subscriptionPlan: config.subscriptionPlan } });
+      // 如果不存在，则创建默认配置
+      if (!existingConfig) {
+        await this.upsertUITextConfig(config);
+        console.log(`Created default UI text config for ${config.subscriptionPlan}`);
+      } else {
+        console.log(`UI text config for ${config.subscriptionPlan} already exists`);
+      }
+    }
+    console.log('UI text config initialization check complete.');
   }
 }
 

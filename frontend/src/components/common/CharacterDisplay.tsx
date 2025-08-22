@@ -40,15 +40,17 @@ const CharacterDisplay: React.FC<CharacterDisplayProps> = ({ role, rank, size = 
 
     if (role === 'master') {
         // 根据用户订阅状态决定显示唐僧还是观音
-        // 试用版和专业版都使用观音形象，只有标准版使用唐僧
-        const useGuanyinVersion = userSubscriptionInfo ? 
-            (userSubscriptionInfo.isTrialActive || 
-             userSubscriptionInfo.plan === 'pro' || 
-             userSubscriptionInfo.plan.includes('菩萨救我') || 
-             userSubscriptionInfo.plan.includes('免费体验')) : 
-            false; // 默认使用师傅救我
+        // 标准版使用唐僧形象，试用版和专业版使用观音形象
+        const useTangsengVersion = userSubscriptionInfo ? 
+            (userSubscriptionInfo.plan === 'standard' || 
+             userSubscriptionInfo.plan.includes('师傅救我')) : 
+            false; // 默认使用观音
         
-        if (useGuanyinVersion) {
+        if (useTangsengVersion) {
+            // 标准版用户显示唐僧
+            src = tangsengImage;
+            altText = '唐僧师父';
+        } else {
             // 试用版和专业版用户显示观音，根据时间显示不同形象
             if (shouldShowSleepingGuanyin()) {
                 src = suiguanyingImage;
@@ -57,10 +59,6 @@ const CharacterDisplay: React.FC<CharacterDisplayProps> = ({ role, rank, size = 
                 src = guanyingImage;
                 altText = '观音姐姐';
             }
-        } else {
-            src = tangsengImage;
-  
-            altText = '唐僧师父';
         }
     } else {
         // 学生角色只显示悟空，根据游戏化阶段显示不同形象

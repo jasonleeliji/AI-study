@@ -39,7 +39,7 @@ const AdminConfigView: React.FC = () => {
                 setTotalMonkeyKingGoalTokens(response.totalMonkeyKingGoalTokens || 1200000);
                 
                 // 设置微信二维码图片URL
-                setWechatQrImageUrl(response.wechatQrImageUrl || '/src/assets/wechat-w.png');
+                setWechatQrImageUrl(response.wechatQrImageUrl);
                 
                 // 获取AI提示词配置中的分析间隔
                 const aiPrompts = await api.admin.configManager.aiPrompts.getAll();
@@ -392,7 +392,8 @@ const AdminConfigView: React.FC = () => {
                                 className="w-48 h-48 object-contain mx-auto"
                                 onError={(e) => {
                                     const target = e.target as HTMLImageElement;
-                                    target.src = '/src/assets/wechat-w.png';
+                                    // 如果图片加载失败，尝试使用后端默认图片URL
+                                    target.src = `${import.meta.env.VITE_BACKEND_URL || 'http://localhost:5000'}/src/assets/wechat-w.png`;
                                 }}
                             />
                         </div>

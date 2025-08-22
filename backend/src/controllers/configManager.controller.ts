@@ -150,3 +150,58 @@ export const initializeFeedbackMessages = async (req: Request, res: Response) =>
     res.status(500).json({ message: '初始化反馈消息失败', error: error.message });
   }
 };
+
+// ==================== UI文本配置管理 ====================
+
+export const getUITextConfigs = async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    const configs = await configManagerService.getAllUITextConfigs();
+    res.json(configs);
+  } catch (error: any) {
+    res.status(500).json({ message: error.message });
+  }
+};
+
+export const getUITextConfig = async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    const { subscriptionPlan } = req.params;
+    const config = await configManagerService.getUITextConfig(subscriptionPlan);
+    if (!config) {
+      return res.status(404).json({ message: 'UI文本配置未找到' });
+    }
+    res.json(config);
+  } catch (error: any) {
+    res.status(500).json({ message: error.message });
+  }
+};
+
+export const upsertUITextConfig = async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    const config = await configManagerService.upsertUITextConfig(req.body);
+    res.json(config);
+  } catch (error: any) {
+    console.error('保存UI文本配置失败:', error);
+    res.status(500).json({ message: '保存UI文本配置失败', error: error.message });
+  }
+};
+
+export const deleteUITextConfig = async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    const { id } = req.params;
+    await configManagerService.deleteUITextConfig(parseInt(id));
+    res.status(200).json({ message: 'UI文本配置删除成功' });
+  } catch (error: any) {
+    console.error('删除UI文本配置失败:', error);
+    res.status(500).json({ message: '删除UI文本配置失败', error: error.message });
+  }
+};
+
+export const initializeUITextConfigs = async (req: Request, res: Response) => {
+  try {
+    await configManagerService.initializeDefaultUITextConfigs();
+    res.status(200).json({ message: 'UI文本配置初始化成功' });
+  } catch (error: any) {
+    console.error('初始化UI文本配置失败:', error);
+    res.status(500).json({ message: '初始化UI文本配置失败', error: error.message });
+  }
+};

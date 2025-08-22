@@ -895,21 +895,23 @@ const SupervisionView: React.FC<SupervisionViewProps> = ({ profile, onRankChange
                         {status === StudyStatus.Studying || status === StudyStatus.Break ? (
                             <>
                                 <h3 className="font-bold mb-2 text-lg flex items-center gap-2"><SparklesIcon /> 
-                                    菩萨睁开法眼，正在默默观察中...
+                                    {planName === '师傅救我' 
+                                        ? "唐三藏瞪大了双眼...." 
+                                        : "菩萨睁开了法眼...."
+                                    }
                                 </h3>
                                 {isAnalyzing ? (
                                     <p className="italic text-slate-500 dark:text-slate-400">
-                                        菩萨正在观察中...
+                                        {planName === '师傅救我' 
+                                            ? "师傅默默来到了身后...." 
+                                            : "菩萨懒懒的瞥了你一眼，小心哪...."
+                                        }
                                     </p>
                                 ) : lastAnalysis ? (
                                     <p className={`text-base ${lastAnalysis.isFocused && lastAnalysis.isOnSeat ? 'text-slate-600 dark:text-slate-300' : 'text-amber-600 dark:text-amber-400'}`}>
                                         {lastAnalysis.message}
                                     </p>
-                                ) : (
-                                    <p className="italic text-slate-500 dark:text-slate-400">
-                                        菩萨正在观察中...
-                                    </p>
-                                )}
+                                ) : null}
                             </>
                         ) : (
                             <>

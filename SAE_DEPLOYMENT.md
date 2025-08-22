@@ -83,22 +83,51 @@ docker push registry.cn-hangzhou.aliyuncs.com/[你的命名空间]/ai-study-back
 5. 环境变量配置：
    ```
    PORT=5000
+   NODE_ENV=production
    JWT_SECRET=your-jwt-secret
-   DASHSCOPE_API_KEY=your-dashscope-api-key
+   FRONTEND_URL=https://your-frontend-domain.com
+   
+   # 数据库配置 - 云原生部署
+   CLOUD_NATIVE_DB_PATH=/app/data/database.sqlite
+   
+   # AI服务配置
+   QWEN_API_KEY=your-qwen-api-key
+   QWEN_API_BASE_URL=https://dashscope.aliyuncs.com/compatible-mode/v1
+   
+   # 支付配置
    ALIPAY_APP_ID=your-alipay-app-id
    ALIPAY_PRIVATE_KEY=your-alipay-private-key
    ALIPAY_PUBLIC_KEY=your-alipay-public-key
+   ALIPAY_GATEWAY_URL=https://openapi.alipay.com/gateway.do
+   USE_MOCK_PAYMENT=false
+   
+   # 上传配置
+   UPLOAD_STRATEGY=oss
+   OSS_ACCESS_KEY_ID=your-oss-access-key-id
+   OSS_ACCESS_KEY_SECRET=your-oss-access-key-secret
+   OSS_REGION=oss-cn-hangzhou
+   OSS_BUCKET=your-bucket-name
+   OSS_HOST=https://your-bucket.oss-cn-hangzhou.aliyuncs.com
+   OSS_EXPIRE_TIME=3600
+   
+   # 管理员配置
+   ADMIN_PHONE=your-admin-phone
+   ADMIN_KEY=your-admin-key
    ```
 
 6. 端口配置：
    - 容器端口：5000
    - 协议：HTTP
 
-7. 存储卷配置（用于持久化SQLite数据库和上传文件）：
+7. 存储卷配置（用于持久化SQLite数据库）：
    - 存储类型：NAS文件存储
-   - 挂载路径：/app/database
-   - 容器路径：/app/backend/database
-   - 另一个存储卷用于上传文件：
+   - 挂载路径：/app/data
+   - 容器路径：/app/data
+   - 说明：SQLite数据库文件将存储在 `/app/data/database.sqlite`
+   
+   注意：如果使用OSS存储文件，则不需要为上传文件配置额外的存储卷。
+   如果使用本地存储（UPLOAD_STRATEGY=local），则需要额外配置：
+   - 存储类型：NAS文件存储
    - 挂载路径：/app/uploads
    - 容器路径：/app/backend/uploads
 

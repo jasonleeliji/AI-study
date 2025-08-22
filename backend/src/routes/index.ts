@@ -10,10 +10,14 @@ import feedbackRoutes from './feedback.routes';
 import adminRoutes from './admin.routes';
 import appConfigRoutes from './appConfig.routes';
 import userManagerRoutes from './userManager.routes';
+import uploadConfigRoutes from './uploadConfig.routes';
+import configManagerRoutes from './configManager.routes';
 
 const router = Router();
 
 router.use('/config', appConfigRoutes);
+router.use('/config', uploadConfigRoutes);
+router.use('/config-manager', configManagerRoutes);
 router.use('/auth', authRoutes);
 router.use('/users', userRoutes);
 router.use('/sessions', sessionRoutes);

@@ -161,6 +161,24 @@ const api = {
         initialize: () => apiClient.post('/admin/config-manager/feedback-messages/initialize', {}, {
           headers: { 'x-admin-key': localStorage.getItem('adminKey') }
         }).then(res => res.data)
+      },
+      // UI文本配置
+      uiTextConfigs: {
+        getAll: () => apiClient.get('/config-manager/ui-text-configs', {
+          headers: { 'x-admin-key': localStorage.getItem('adminKey') }
+        }).then(res => res.data),
+        get: (subscriptionPlan: string) => apiClient.get(`/config-manager/ui-text-configs/${subscriptionPlan}`, {
+          headers: { 'x-admin-key': localStorage.getItem('adminKey') }
+        }).then(res => res.data),
+        upsert: (data: any) => apiClient.post('/config-manager/ui-text-configs', data, {
+          headers: { 'x-admin-key': localStorage.getItem('adminKey') }
+        }).then(res => res.data),
+        delete: (id: string) => apiClient.delete(`/config-manager/ui-text-configs/${id}`, {
+          headers: { 'x-admin-key': localStorage.getItem('adminKey') }
+        }).then(res => res.data),
+        initialize: () => apiClient.post('/config-manager/ui-text-configs/initialize', {}, {
+          headers: { 'x-admin-key': localStorage.getItem('adminKey') }
+        }).then(res => res.data)
       }
     },
     // 语音管理

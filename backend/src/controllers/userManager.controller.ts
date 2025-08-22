@@ -162,6 +162,7 @@ export const updateUserSubscription = async (req: Request, res: Response, next: 
         // 更新现有订阅
         await subscription.update({
           plan: plan.toLowerCase() as SubscriptionPlan,
+          startDate: now,
           endDate,
           status: 'active'
         });
@@ -170,6 +171,7 @@ export const updateUserSubscription = async (req: Request, res: Response, next: 
         await Subscription.create({
           userId: userId,
           plan: plan.toLowerCase() as SubscriptionPlan,
+          startDate: now,
           endDate,
           status: 'active'
         });

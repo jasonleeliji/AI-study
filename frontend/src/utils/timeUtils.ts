@@ -5,6 +5,8 @@ import { SubscriptionPlan } from '../types';
 // 缓存UI文案配置
 let uiTextCache: { [key: string]: { feedbackTitle: string; sleepMessage: string; idleMessage: string } } = {};
 
+
+
 /**
  * 检查当前时间是否在睡觉时间（晚上11点到早上9点）
  * @returns {boolean} 如果在睡觉时间返回true，否则返回false
@@ -100,11 +102,4 @@ export const getIdleMessage = async (plan?: SubscriptionPlan | string): Promise<
  */
 export const shouldShowSleepingGuanyin = (): boolean => {
   return isSleepTime();
-};
-
-/**
- * 清除UI文案缓存
- */
-export const clearUITextCache = (): void => {
-  uiTextCache = {};
 };

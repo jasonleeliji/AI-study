@@ -318,7 +318,8 @@ const DashboardView: React.FC<DashboardViewProps> = ({ gamificationStage: _gamif
                         className="w-40 h-40 mx-auto border border-slate-200 dark:border-slate-600 rounded-lg"
                         onError={(e) => {
                           const target = e.target as HTMLImageElement;
-                          target.src = '/src/assets/wechat-w.png';
+                          // 如果图片加载失败，尝试使用后端默认图片URL
+                          target.src = `${import.meta.env.VITE_BACKEND_URL || 'http://localhost:5000'}/src/assets/wechat-w.png`;
                         }}
                       />
                     </div>

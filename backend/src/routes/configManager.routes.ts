@@ -10,7 +10,13 @@ import {
   getFeedbackMessage,
   upsertFeedbackMessage,
   deleteFeedbackMessage,
-  initializeFeedbackMessages
+  initializeFeedbackMessages,
+  // UI文本配置
+  getUITextConfigs,
+  getUITextConfig,
+  upsertUITextConfig,
+  deleteUITextConfig,
+  initializeUITextConfigs
 } from '../controllers/configManager.controller';
 
 const router = Router();
@@ -46,5 +52,13 @@ router.post('/feedback-messages', upsertFeedbackMessage);
 router.put('/feedback-messages', upsertFeedbackMessage);
 router.delete('/feedback-messages/:id', deleteFeedbackMessage);
 router.post('/feedback-messages/initialize', initializeFeedbackMessages);
+
+// ==================== UI文本配置路由 ====================
+router.get('/ui-text-configs', getUITextConfigs);
+router.get('/ui-text-configs/:subscriptionPlan', getUITextConfig);
+router.post('/ui-text-configs', upsertUITextConfig);
+router.put('/ui-text-configs', upsertUITextConfig);
+router.delete('/ui-text-configs/:id', deleteUITextConfig);
+router.post('/ui-text-configs/initialize', initializeUITextConfigs);
 
 export default router;

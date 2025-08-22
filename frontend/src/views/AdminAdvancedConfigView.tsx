@@ -23,8 +23,17 @@ interface FeedbackMessage {
   isActive: boolean;
 }
 
+interface UITextConfig {
+  _id?: string;
+  subscriptionPlan: string;
+  feedbackTitle: string;
+  sleepMessage: string;
+  idleMessage: string;
+  isActive: boolean;
+}
+
 const AdminAdvancedConfigView: React.FC = () => {
-  const [activeTab, setActiveTab] = useState<'ai-prompts' | 'feedback' | 'subscription'>('ai-prompts');
+  const [activeTab, setActiveTab] = useState<'ai-prompts' | 'feedback' | 'ui-text' | 'subscription'>('ai-prompts');
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -35,6 +44,10 @@ const AdminAdvancedConfigView: React.FC = () => {
   // 反馈消息配置状态
   const [feedbackMessages, setFeedbackMessages] = useState<FeedbackMessage[]>([]);
   const [editingFeedback, setEditingFeedback] = useState<FeedbackMessage | null>(null);
+
+  // UI文本配置状态
+  const [uiTextConfigs, setUITextConfigs] = useState<UITextConfig[]>([]);
+  const [editingUIText, setEditingUIText] = useState<UITextConfig | null>(null);
 
   // 订阅服务管理状态
   const [users, setUsers] = useState<any[]>([]);
@@ -51,12 +64,14 @@ const AdminAdvancedConfigView: React.FC = () => {
     setIsLoading(true);
     setError(null);
     try {
-      const [prompts, feedback] = await Promise.all([
+      const [prompts, feedback, uiTexts] = await Promise.all([
         api.admin.configManager.aiPrompts.getAll(),
-        api.admin.configManager.feedbackMessages.getAll()
+        api.admin.configManager.feedbackMessages.getAll(),
+        api.admin.configManager.uiTextConfigs.getAll()
       ]);
       setAiPrompts(prompts);
       setFeedbackMessages(feedback);
+      setUITextConfigs(uiTexts);
       if (activeTab === 'subscription') {
         await loadUsers();
       }
@@ -86,7 +101,7 @@ const AdminAdvancedConfigView: React.FC = () => {
      if (!selectedUser) return;
      
      try {
-       await api.admin.userManager.updateUserSubscription(selectedUser._id, {
+       await api.admin.userManager.updateUserSubscription(selectedUser.id, {
          plan: subscriptionForm.plan,
          days: subscriptionForm.days
        });
@@ -138,6 +153,30 @@ const AdminAdvancedConfigView: React.FC = () => {
     if (confirm('确定要删除这个反馈消息配置吗？')) {
       try {
         await api.admin.configManager.feedbackMessages.delete(id);
+        loadData();
+        alert('删除成功！');
+      } catch (err: any) {
+        alert('删除失败：' + err.message);
+      }
+    }
+  };
+
+  // UI文本配置相关函数
+  const handleSaveUIText = async (uiText: UITextConfig) => {
+    try {
+      await api.admin.configManager.uiTextConfigs.upsert(uiText);
+      setEditingUIText(null);
+      loadData();
+      alert('UI文本配置保存成功！');
+    } catch (err: any) {
+      alert('保存失败：' + err.message);
+    }
+  };
+
+  const handleDeleteUIText = async (id: string) => {
+    if (confirm('确定要删除这个UI文本配置吗？')) {
+      try {
+        await api.admin.configManager.uiTextConfigs.delete(id);
         loadData();
         alert('删除成功！');
       } catch (err: any) {
@@ -787,6 +826,200 @@ const AdminAdvancedConfigView: React.FC = () => {
     );
   };
 
+  const renderUITextTab = () => {
+    return (
+      <div className="space-y-6">
+        <div className="flex justify-between items-center">
+          <h2 className="text-xl font-semibold">UI文本配置</h2>
+          <div className="flex space-x-3">
+            <button
+              onClick={async () => {
+                if (confirm('确定要初始化所有UI文本配置吗？这将重置为默认配置。')) {
+                  try {
+                    setIsLoading(true);
+                    await api.admin.configManager.uiTextConfigs.initialize();
+                    loadData();
+                    alert('UI文本配置初始化成功！');
+                  } catch (err: any) {
+                    alert('初始化失败：' + err.message);
+                  } finally {
+                    setIsLoading(false);
+                  }
+                }
+              }}
+              className="bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600 flex items-center"
+            >
+              <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+              </svg>
+              初始化默认配置
+            </button>
+            <button
+              onClick={() => setEditingUIText({
+                subscriptionPlan: 'STANDARD',
+                feedbackTitle: '',
+                sleepMessage: '',
+                idleMessage: '',
+                isActive: true
+              })}
+              className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 flex items-center"
+            >
+              <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
+              </svg>
+              添加UI文本配置
+            </button>
+          </div>
+        </div>
+
+        {editingUIText && (
+          <div className="bg-gray-50 p-6 rounded-lg border shadow-md">
+            <h3 className="text-lg font-medium mb-4">
+              {editingUIText._id ? '编辑' : '添加'}UI文本配置
+            </h3>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div>
+                <label className="block text-sm font-medium mb-2">订阅计划</label>
+                <select
+                  value={editingUIText.subscriptionPlan}
+                  onChange={(e) => setEditingUIText({...editingUIText, subscriptionPlan: e.target.value})}
+                  className="w-full p-2 border rounded focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                >
+                  <option value="TRIAL">试用版</option>
+                  <option value="STANDARD">标准版</option>
+                  <option value="PRO">专业版</option>
+                </select>
+              </div>
+              <div>
+                <label className="block text-sm font-medium mb-2">状态</label>
+                <select
+                  value={editingUIText.isActive ? 'true' : 'false'}
+                  onChange={(e) => setEditingUIText({...editingUIText, isActive: e.target.value === 'true'})}
+                  className="w-full p-2 border rounded focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                >
+                  <option value="true">启用</option>
+                  <option value="false">禁用</option>
+                </select>
+              </div>
+            </div>
+            <div className="mt-6 space-y-4">
+              <div>
+                <label className="block text-sm font-medium mb-2">反馈标题</label>
+                <input
+                  type="text"
+                  value={editingUIText.feedbackTitle}
+                  onChange={(e) => setEditingUIText({...editingUIText, feedbackTitle: e.target.value})}
+                  className="w-full p-2 border rounded focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                  placeholder="请输入反馈标题"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium mb-2">睡眠提示消息</label>
+                <textarea
+                  value={editingUIText.sleepMessage}
+                  onChange={(e) => setEditingUIText({...editingUIText, sleepMessage: e.target.value})}
+                  className="w-full p-2 border rounded focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                  rows={3}
+                  placeholder="请输入睡眠提示消息"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium mb-2">空闲提示消息</label>
+                <textarea
+                  value={editingUIText.idleMessage}
+                  onChange={(e) => setEditingUIText({...editingUIText, idleMessage: e.target.value})}
+                  className="w-full p-2 border rounded focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                  rows={3}
+                  placeholder="请输入空闲提示消息"
+                />
+              </div>
+            </div>
+            <div className="flex space-x-3 mt-6">
+              <button
+                onClick={() => handleSaveUIText(editingUIText)}
+                className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 flex-1"
+              >
+                保存
+              </button>
+              <button
+                onClick={() => setEditingUIText(null)}
+                className="bg-gray-500 text-white px-4 py-2 rounded hover:bg-gray-600 flex-1"
+              >
+                取消
+              </button>
+            </div>
+          </div>
+        )}
+
+        <div className="bg-white rounded-lg shadow overflow-hidden">
+          <div className="px-6 py-4 border-b border-gray-200">
+            <h3 className="text-lg font-medium">UI文本配置列表</h3>
+          </div>
+          <div className="overflow-x-auto">
+            <table className="min-w-full divide-y divide-gray-200">
+              <thead className="bg-gray-50">
+                <tr>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">订阅计划</th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">反馈标题</th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">睡眠消息</th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">空闲消息</th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">状态</th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">操作</th>
+                </tr>
+              </thead>
+              <tbody className="bg-white divide-y divide-gray-200">
+                {uiTextConfigs.map((config) => (
+                  <tr key={config._id}>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
+                      {config.subscriptionPlan === 'TRIAL' ? '试用版' : 
+                       config.subscriptionPlan === 'STANDARD' ? '标准版' : 
+                       config.subscriptionPlan === 'PRO' ? '专业版' : config.subscriptionPlan}
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                      {config.feedbackTitle || '-'}
+                    </td>
+                    <td className="px-6 py-4 text-sm text-gray-500 max-w-xs truncate">
+                      {config.sleepMessage || '-'}
+                    </td>
+                    <td className="px-6 py-4 text-sm text-gray-500 max-w-xs truncate">
+                      {config.idleMessage || '-'}
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap">
+                      <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${
+                        config.isActive ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'
+                      }`}>
+                        {config.isActive ? '启用' : '禁用'}
+                      </span>
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm font-medium space-x-2">
+                      <button
+                        onClick={() => setEditingUIText(config)}
+                        className="text-blue-600 hover:text-blue-900"
+                      >
+                        编辑
+                      </button>
+                      <button
+                        onClick={() => handleDeleteUIText(config._id!)}
+                        className="text-red-600 hover:text-red-900"
+                      >
+                        删除
+                      </button>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+            {uiTextConfigs.length === 0 && (
+              <div className="text-center py-8 text-gray-500">
+                暂无UI文本配置
+              </div>
+            )}
+          </div>
+        </div>
+      </div>
+    );
+  };
+
   const renderSubscriptionTab = () => {
     return (
       <div className="space-y-6">
@@ -828,12 +1061,12 @@ const AdminAdvancedConfigView: React.FC = () => {
               </div>
             ) : (
               users.map(user => (
-                <div key={user._id} className="p-4 hover:bg-gray-50">
+                <div key={user.id} className="p-4 hover:bg-gray-50">
                   <div className="flex justify-between items-center">
                     <div>
                       <div className="font-medium">{user.phone}</div>
                       <div className="text-sm text-gray-600">
-                        当前订阅: {user.subscription?.plan || '无'}
+                        当前订阅: {user.currentPlan || '无'}
                         {user.subscription?.expiresAt && (
                           <span className="ml-2">
                             到期时间: {new Date(user.subscription.expiresAt).toLocaleDateString()}
@@ -982,6 +1215,16 @@ const AdminAdvancedConfigView: React.FC = () => {
             反馈消息配置
           </button>
           <button
+            onClick={() => setActiveTab('ui-text')}
+            className={`py-2 px-1 border-b-2 font-medium text-sm ${
+              activeTab === 'ui-text'
+                ? 'border-blue-500 text-blue-600'
+                : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+            }`}
+          >
+            UI文本配置
+          </button>
+          <button
             onClick={() => setActiveTab('subscription')}
             className={`py-2 px-1 border-b-2 font-medium text-sm ${
               activeTab === 'subscription'
@@ -997,6 +1240,7 @@ const AdminAdvancedConfigView: React.FC = () => {
       {/* 标签内容 */}
       {activeTab === 'ai-prompts' && renderAiPromptsTab()}
       {activeTab === 'feedback' && renderFeedbackTab()}
+      {activeTab === 'ui-text' && renderUITextTab()}
       {activeTab === 'subscription' && renderSubscriptionTab()}
     </div>
   );

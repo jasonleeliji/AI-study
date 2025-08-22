@@ -245,7 +245,6 @@ const SubscriptionView: React.FC = () => {
                         {/* 选择按钮 */}
                         <button
                             onClick={() => handleSubscribe('standard')}
-                            disabled={isLoading !== null || (hasActiveSubscription && planName.includes('standard'))}
                             className="w-full bg-yellow-400 hover:bg-yellow-500 text-slate-900 font-bold py-4 px-6 rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                         >
                             <div className="text-lg">请"师傅救我"</div>
@@ -300,7 +299,7 @@ const SubscriptionView: React.FC = () => {
                         {/* 选择按钮 */}
                         <button
                             onClick={() => handleSubscribe('pro')}
-                            disabled={isLoading !== null || (hasActiveSubscription && planName.includes('pro'))}
+                            disabled={isLoading !== null || (hasActiveSubscription && planName.includes('菩萨救我'))}
                             className="w-full bg-yellow-400 hover:bg-yellow-500 text-slate-900 font-bold py-4 px-6 rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                         >
                             <div className="text-lg">请"菩萨救我"</div>
@@ -321,7 +320,7 @@ const SubscriptionView: React.FC = () => {
                             </p>
                             <div className="flex justify-center mb-4">
                                 <img 
-                                src="/src/assets/wechat-w.png" 
+                                src={`${import.meta.env.VITE_BACKEND_URL || 'http://localhost:5000'}/src/assets/wechat-w.png`} 
                                 alt="微信群二维码" 
                                 className="w-48 h-48 border border-white/20 rounded-lg"
                             />

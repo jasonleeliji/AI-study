@@ -1,5 +1,11 @@
 import { Router } from 'express';
-import { uploadWechatQrImage, getWechatQrImage, resetWechatQrImage } from '../controllers/imageManager.controller';
+import { 
+  uploadWechatQrImage, 
+  getWechatQrImage, 
+  resetWechatQrImage,
+  getImageUploadSignature,
+  saveWechatQrImageUrl
+} from '../controllers/imageManager.controller';
 
 // 管理员认证中间件
 const adminAuth = (req: any, res: any, next: any) => {
@@ -17,8 +23,14 @@ const adminAuth = (req: any, res: any, next: any) => {
 
 const router = Router();
 
-// 上传微信二维码图片
+// 上传微信二维码图片（本地模式）
 router.post('/upload-wechat-qr', adminAuth, uploadWechatQrImage);
+
+// 获取图片上传签名（OSS模式）
+router.get('/signature', adminAuth, getImageUploadSignature);
+
+// 保存微信二维码图片URL（OSS模式）
+router.post('/wechat-qr-url', adminAuth, saveWechatQrImageUrl);
 
 // 获取当前微信二维码图片URL
 router.get('/wechat-qr', getWechatQrImage);

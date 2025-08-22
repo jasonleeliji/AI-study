@@ -9,6 +9,11 @@ import { broadcastConfigUpdate } from '../services/realtime.service';
 const getSingletonAppConfig = async () => {
     let config = await AppConfig.findOne();
     if (!config) {
+        // 根据环境生成默认图片URL
+        const defaultImageUrl = process.env.NODE_ENV === 'production'
+            ? `${process.env.OSS_HOST || 'https://your-bucket.oss-cn-shanghai.aliyuncs.com'}/assets/wechat-w.png`
+            : `${process.env.BACKEND_URL || 'http://localhost:5000'}/src/assets/wechat-w.png`;
+            
         config = await AppConfig.create({
             positiveFeedbackMinutes: 30,
             standardPlanPrice: 1990,
@@ -17,7 +22,7 @@ const getSingletonAppConfig = async () => {
             caveMasterGoalTokens: 500,
             monkeyKingGoalTokens: 1000,
             totalMonkeyKingGoalTokens: 5000,
-            wechatQrImageUrl: 'https://example.com/wechat-qr.png'
+            wechatQrImageUrl: defaultImageUrl
         });
     }
     return config;
@@ -116,41 +121,54 @@ export const getPlanDetailsController = async (req: Request, res: Response, next
 export const getUITextConfig = async (req: Request, res: Response, next: NextFunction) => {
     try {
         const { plan } = req.query;
+        
+        // 从数据库获取UI文本配置
+        const configManagerService = (await import('../services/configManager.service')).default;
+        const uiTextConfig = await configManagerService.getUITextConfig(plan as string);
+        
+        if (uiTextConfig) {
+            res.json({
+                feedbackTitle: uiTextConfig.feedbackTitle,
+                sleepMessage: uiTextConfig.sleepMessage,
+                idleMessage: uiTextConfig.idleMessage
+            });
+        } else {
+            // 如果数据库中没有配置，返回默认配置
+            let feedbackTitle = '';
+            let sleepMessage = '';
+            let idleMessage = '';
 
-        let feedbackTitle = '';
-        let sleepMessage = '';
-        let idleMessage = '';
+            // 根据订阅计划返回对应的默认UI文本配置
+            switch (plan as string) {
+                case 'trial':
+                    feedbackTitle = '菩萨救我';
+                    sleepMessage = '夜深了，姐姐也要休息了。小猴子，早睡早起身体好，明日再来修行吧！';
+                    idleMessage = '小家伙，你再不开始，姐姐就要先睡了....';
+                    break;
+                case 'standard':
+                    feedbackTitle = '师傅救我';
+                    sleepMessage = '徒儿，夜深了，为师也要休息了。早睡早起身体好，明日再来修行吧！';
+                    idleMessage = '徒儿，为师已经准备好了，快来开始修行吧！';
+                    break;
+                case 'pro':
+                    feedbackTitle = '菩萨救我';
+                    sleepMessage = '夜深了，姐姐也要休息了。小猴子，早睡早起身体好，明日再来修行吧！';
+                    idleMessage = '小家伙，你再不开始，姐姐就要先睡了....';
+                    break;
+                default:
+                    // 默认使用试用版配置
+                    feedbackTitle = '菩萨救我';
+                    sleepMessage = '夜深了，姐姐也要休息了。小猴子，早睡早起身体好，明日再来修行吧！';
+                    idleMessage = '小家伙，你再不开始，姐姐就要先睡了....';
+                    break;
+            }
 
-        // 根据订阅计划返回对应的UI文本配置
-        switch (plan as string) {
-            case 'trial':
-                feedbackTitle = '菩萨救我';
-                sleepMessage = '夜深了，姐姐也要休息了。小猴子，早睡早起身体好，明日再来修行吧！';
-                idleMessage = '小家伙，你再不开始，姐姐就要先睡了....';
-                break;
-            case 'standard':
-                feedbackTitle = '师傅救我';
-                sleepMessage = '徒儿，夜深了，为师也要休息了。早睡早起身体好，明日再来修行吧！';
-                idleMessage = '徒儿，为师已经准备好了，快来开始修行吧！';
-                break;
-            case 'pro':
-                feedbackTitle = '菩萨救我';
-                sleepMessage = '夜深了，姐姐也要休息了。小猴子，早睡早起身体好，明日再来修行吧！';
-                idleMessage = '小家伙，你再不开始，姐姐就要先睡了....';
-                break;
-            default:
-                // 默认使用试用版配置
-                feedbackTitle = '菩萨救我';
-                sleepMessage = '夜深了，姐姐也要休息了。小猴子，早睡早起身体好，明日再来修行吧！';
-                idleMessage = '小家伙，你再不开始，姐姐就要先睡了....';
-                break;
+            res.json({
+                feedbackTitle,
+                sleepMessage,
+                idleMessage
+            });
         }
-
-        res.json({
-            feedbackTitle,
-            sleepMessage,
-            idleMessage
-        });
     } catch (error) {
         next(error);
     }
