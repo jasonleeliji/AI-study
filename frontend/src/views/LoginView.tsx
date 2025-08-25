@@ -8,40 +8,43 @@ interface LoginViewProps {
 }
 
 const LoginView: React.FC<LoginViewProps> = ({ onSwitchToRegister, onForgotPassword }) => {
-    const [currentLine, setCurrentLine] = useState(0);
+    // 注释掉文本滚动功能
+    // const [currentLine, setCurrentLine] = useState(0);
     
-    const introLines = [
-        "听好了，小猴子！",
-        "我这儿正要组个队，去西天干票大的。",
-        "但我可不带拖后腿的。想上我的队，先让我瞧瞧你有没有那个本事。",
-        "别以为会翻几个跟头就了不起了。在我这儿，只有'坐得住'才是真功夫！",
-        "你要是敢上蹿下跳、东张西望，就罚你去面壁思过！",
-        "你要是不好好学习，就让你永远当不了齐天大圣！",
-        "最惨的，就是永远无法修成正果！",
-        "只有那个最专注、最能沉下心来的猴子，才有资格成为真正的悟空，扛起齐天大圣的旗号！",
-        "怎么，不服气？那就坐下来，拿起你的'金箍棒'（笔），让我看看你到底有多少能耐！"
-    ];
+    // 注释掉引言文本数组
+    // const introLines = [
+    //     "听好了，小猴子！",
+    //     "我这儿正要组个队，去西天干票大的。",
+    //     "但我可不带拖后腿的。想上我的队，先让我瞧瞧你有没有那个本事。",
+    //     "别以为会翻几个跟头就了不起了。在我这儿，只有'坐得住'才是真功夫！",
+    //     "你要是敢上蹿下跳、东张西望，就罚你去面壁思过！",
+    //     "你要是不好好学习，就让你永远当不了齐天大圣！",
+    //     "最惨的，就是永远无法修成正果！",
+    //     "只有那个最专注、最能沉下心来的猴子，才有资格成为真正的悟空，扛起齐天大圣的旗号！",
+    //     "怎么，不服气？那就坐下来，拿起你的'金箍棒'（笔），让我看看你到底有多少能耐！"
+    // ];
     
-    useEffect(() => {
-        // 初始化音频
-        const sound = new Howl({
-            src: ['/assets/sounds/monkey-intro.mp3'],
-            volume: 0.5
-        });
-        
-        // 开始播放音频
-        sound.play();
-        
-        // 设置滚动文本定时器
-        const timer = setInterval(() => {
-            setCurrentLine(prev => (prev + 1) % introLines.length);
-        }, 5000);
-        
-        return () => {
-            clearInterval(timer);
-            sound.stop();
-        };
-    }, []);
+    // 注释掉音频播放和文本滚动功能
+    // useEffect(() => {
+    //     // 初始化音频
+    //     const sound = new Howl({
+    //         src: ['/assets/sounds/monkey-intro.mp3'],
+    //         volume: 0.5
+    //     });
+    //     
+    //     // 开始播放音频
+    //     sound.play();
+    //     
+    //     // 设置滚动文本定时器
+    //     const timer = setInterval(() => {
+    //         setCurrentLine(prev => (prev + 1) % introLines.length);
+    //     }, 5000);
+    //     
+    //     return () => {
+    //         clearInterval(timer);
+    //         sound.stop();
+    //     };
+    // }, []);
     const [phone, setPhone] = useState('');
     const [password, setPassword] = useState('');
     const [error, setError] = useState('');
@@ -75,12 +78,12 @@ const LoginView: React.FC<LoginViewProps> = ({ onSwitchToRegister, onForgotPassw
 
             
             <form onSubmit={handleLogin} className="space-y-6 pt-8">
-                {/* 引言文本 - 普通文本标签 */}
-                <div className="text-center min-h-[60px] flex items-center justify-center">
+                {/* 注释掉引言文本滚动显示 */}
+                {/* <div className="text-center min-h-[60px] flex items-center justify-center">
                     <p className="text-yellow-200 font-medium animate-fade-in-out text-lg drop-shadow-md">
                         {introLines[currentLine]}
                     </p>
-                </div>
+                </div> */}
                 <div>
                     <label htmlFor="phone-login" className="block text-sm font-medium text-yellow-100 drop-shadow-sm">手机号码</label>
                     <input
